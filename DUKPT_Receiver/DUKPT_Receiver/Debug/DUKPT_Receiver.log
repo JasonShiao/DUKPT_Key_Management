@@ -1,9 +1,9 @@
 ﻿  TDES.c
   main.c
-c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\main.c(178): warning C4018: '<': signed/unsigned 不相符
-c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\main.c(185): warning C4018: '<': signed/unsigned 不相符
-c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\main.c(197): warning C4018: '<': signed/unsigned 不相符
-c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\main.c(259): warning C4018: '<': signed/unsigned 不相符
+c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\src\main.c(178): warning C4018: '<': signed/unsigned 不相符
+c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\src\main.c(185): warning C4018: '<': signed/unsigned 不相符
+c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\src\main.c(197): warning C4018: '<': signed/unsigned 不相符
+c:\users\9518\documents\gitrepo\dukpt_key_management\dukpt_receiver\dukpt_receiver\src\main.c(259): warning C4018: '<': signed/unsigned 不相符
   DUKPT.c
   DES.c
   正在產生程式碼...

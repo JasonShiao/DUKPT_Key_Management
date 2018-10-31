@@ -15,28 +15,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DES.c">
-      <Filter>來源檔案</Filter>
+    <ClCompile Include="src\DES.c">
+      <Filter>資源檔</Filter>
     </ClCompile>
-    <ClCompile Include="DUKPT.c">
-      <Filter>來源檔案</Filter>
+    <ClCompile Include="src\DUKPT.c">
+      <Filter>資源檔</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
-      <Filter>來源檔案</Filter>
+    <ClCompile Include="src\main.c">
+      <Filter>資源檔</Filter>
     </ClCompile>
-    <ClCompile Include="TDES.c">
-      <Filter>來源檔案</Filter>
+    <ClCompile Include="src\TDES.c">
+      <Filter>資源檔</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DES.h">
-      <Filter>來源檔案</Filter>
+    <ClInclude Include="inc\DES.h">
+      <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="DUKPT.h">
-      <Filter>來源檔案</Filter>
+    <ClInclude Include="inc\DUKPT.h">
+      <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="TDES.h">
-      <Filter>來源檔案</Filter>
+    <ClInclude Include="inc\TDES.h">
+      <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

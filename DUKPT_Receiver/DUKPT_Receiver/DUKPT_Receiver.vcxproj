@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\DES.c" />
+    <ClCompile Include="src\DUKPT.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\TDES.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\DES.h" />
+    <ClInclude Include="inc\DUKPT.h" />
+    <ClInclude Include="inc\TDES.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8F96CA8D-C850-4897-A2DA-A50AF1FFC5AB}</ProjectGuid>
@@ -75,6 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,17 +122,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="DES.c" />
-    <ClCompile Include="DUKPT.c" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="TDES.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DES.h" />
-    <ClInclude Include="DUKPT.h" />
-    <ClInclude Include="TDES.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
