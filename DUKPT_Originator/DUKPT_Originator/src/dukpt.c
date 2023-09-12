@@ -144,25 +144,7 @@ void NewKey(DUKPT_Reg *DUKPT_Instance)
 
         if (oneCount < 10) {
             // Normal case: valid encryption counter value -> generate new keys from the current key before discarding it
-            DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
-            if (DUKPT_Instance->ShiftReg != (uint64_t)0x0) {
-                // Need to generate some keys
                 NewKey_3(DUKPT_Instance);
-                if (!DUKPT_Instance->operative) {
-                    // DUKPT End of life
-                    break;
-                }
-                break; // Still the End of NewKey process
-            } else {
-                // No need to generate new keys, just discard the current key and increment the counter
-                NewKey_4(DUKPT_Instance);
-                NewKey_2(DUKPT_Instance);
-                if (!DUKPT_Instance->operative) {
-                    // DUKPT End of life
-                    break;
-                }
-                break; // Still the End of NewKey process
-            }
         } else {   
             // Invalid encryption counter value -> not using the current key for generating new keys
             // Erase the current key
@@ -200,6 +182,20 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
 
     while (true)
     {
+        // 0. Right shift the ShiftReg by 1 bit and check if it is 0, if yes, end of new key(s) generation
+	    DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
+        if (DUKPT_Instance->ShiftReg == (uint64_t)0x0)
+        {
+            NewKey_4(DUKPT_Instance);
+            NewKey_2(DUKPT_Instance);
+            if (!DUKPT_Instance->operative) {
+                // DUKPT End of life
+                break;
+            }
+            // The end of NewKey_3
+            break;
+        }
+
         // 1. Right-justified ShiftReg "ORed" with the right-most 64 bits of KSNReg
         uint64_t KSN_right64 = (uint64_t)0x0;
         for (int i = 2; i < 10; i++)
@@ -230,23 +226,6 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
             }
             mask >>= 1;
         }
-
-	    DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
-        if (DUKPT_Instance->ShiftReg != (uint64_t)0x0)
-        {
-            // Not all lower bit future keys have been generated, continue
-            continue;
-        }
-
-        NewKey_4(DUKPT_Instance);
-        NewKey_2(DUKPT_Instance);
-        if (!DUKPT_Instance->operative) {
-            // DUKPT End of life
-            break;
-        }
-
-        // The end of NewKey_3
-        break;
     }
 }
 
