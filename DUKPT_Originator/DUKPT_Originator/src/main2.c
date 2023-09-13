@@ -37,7 +37,7 @@ void loadInitialKey(DUKPT_Reg* DUKPT_Instance, uint64_t BDK[2], uint8_t KSN[10])
     printDUKPTStateSummary(DUKPT_Instance);
 
 	// 7. go to NewKey-3 subprocess
-	NewKey_3(DUKPT_Instance);
+	NewKey_3(DUKPT_Instance, true);
 }
 
 /**
@@ -120,8 +120,14 @@ int Request_PIN_Entry(DUKPT_Reg* DUKPT_Instance, uint8_t PAN[12+1])
     }
 
     // Use the key to encrypt PIN and send message, then generate new keys before discarding the current key
+    // Mask the key with variant constant for different purposes:
+    //   1. PIN Encryption Key:             0x00000000000000FF 0x00000000000000FF
+    //   2. MAC Request Key:                0x000000000000FF00 0x000000000000FF00   
+    //   3. MAC Response Key:               0x00000000FF000000 0x00000000FF000000
+    //   4. Data Encryption Key (Request):  0x0000000000FF0000 0x0000000000FF0000
+    //   5. Data Entrypction Key (Response):0x000000FF00000000 0x000000FF00000000
 
-    // TODO: Encrypt the message (Format and encrypt PIN Block)
+    // Encrypt the message (Format and encrypt PIN Block)
 #if ANSI_X_9_24_2009
     DUKPT_Instance->CryptoReg[0] = PIN_Block;
     DUKPT_Instance->KeyReg[0] = (*(DUKPT_Instance->CurrentKeyPtr)).LeftHalf;

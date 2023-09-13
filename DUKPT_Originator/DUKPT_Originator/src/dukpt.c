@@ -65,6 +65,7 @@ void CalcIPEK(uint64_t BDK[2], uint8_t KSN[10], uint64_t IPEK[2])
 	IPEK[0] = DES_Encrypt(DES_Decrypt(DES_Encrypt(IKSN, BDK[0]), BDK[1]), BDK[0]);
 	uint64_t BDKmask[2] = { 0xC0C0C0C000000000, 0xC0C0C0C000000000 };
 	IPEK[1] = DES_Encrypt(DES_Decrypt(DES_Encrypt(IKSN, BDK[0]^BDKmask[0]), BDK[1]^BDKmask[1]), BDK[0]^BDKmask[0]);
+    printf("IPEK: %016llx %016llx\n", IPEK[0], IPEK[1]);
 #else
     printf("The Standard has not been supported yet");
     assert(false);
@@ -144,7 +145,8 @@ void NewKey(DUKPT_Reg *DUKPT_Instance)
 
         if (oneCount < 10) {
             // Normal case: valid encryption counter value -> generate new keys from the current key before discarding it
-                NewKey_3(DUKPT_Instance);
+            NewKey_3(DUKPT_Instance, false);
+            break;
         } else {   
             // Invalid encryption counter value -> not using the current key for generating new keys
             // Erase the current key
@@ -182,6 +184,9 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
 
     while (true)
     {
+        if (firstKey) {
+            firstKey = false; // When loading initial key, skip the first right-shift
+        } else {
         // 0. Right shift the ShiftReg by 1 bit and check if it is 0, if yes, end of new key(s) generation
 	    DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
         if (DUKPT_Instance->ShiftReg == (uint64_t)0x0)
@@ -194,6 +199,7 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
             }
             // The end of NewKey_3
             break;
+        }
         }
 
         // 1. Right-justified ShiftReg "ORed" with the right-most 64 bits of KSNReg
@@ -313,9 +319,9 @@ void printDUKPTStateSummary(DUKPT_Reg *DUKPT_Instance)
 	for (int i = 0; i < 21; i++)
 	{
         if (checkLRC(&DUKPT_Instance->FKReg[i]) == 0) {
-		    printf("Future Key #%d: %016llx %016llx | LRC: 0x%02x Valid\n", i + 1, DUKPT_Instance->FKReg[i].LeftHalf, DUKPT_Instance->FKReg[i].RightHalf, DUKPT_Instance->FKReg[i].LRC);
+		    printf("Future Key #%d: %016llx %016llx | LRC: 0x%02x v\n", i + 1, DUKPT_Instance->FKReg[i].LeftHalf, DUKPT_Instance->FKReg[i].RightHalf, DUKPT_Instance->FKReg[i].LRC);
         } else {
-            printf("Future Key #%d: %016llx %016llx | LRC: 0x%02x Invalid\n", i + 1, DUKPT_Instance->FKReg[i].LeftHalf, DUKPT_Instance->FKReg[i].RightHalf, DUKPT_Instance->FKReg[i].LRC);
+            printf("Future Key #%d: %016llx %016llx | LRC: 0x%02x x\n", i + 1, DUKPT_Instance->FKReg[i].LeftHalf, DUKPT_Instance->FKReg[i].RightHalf, DUKPT_Instance->FKReg[i].LRC);
         }
 	}
 	printf("Key Register: %016llx %016llx\n", DUKPT_Instance->KeyReg[0], DUKPT_Instance->KeyReg[1]);
