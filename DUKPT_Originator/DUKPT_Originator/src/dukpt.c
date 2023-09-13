@@ -129,7 +129,6 @@ void NonReversibleKeyGen(DUKPT_Reg* DUKPT_Instance)
 */
 void NewKey(DUKPT_Reg *DUKPT_Instance)
 {
-    while (true) {
         // Calculate the hamming weight of encryption counter -> if >= 10, invalid
         int oneCount = 0; // Hamming weight
         uint32_t EncryptCounter = 0x0;
@@ -146,7 +145,6 @@ void NewKey(DUKPT_Reg *DUKPT_Instance)
         if (oneCount < 10) {
             // Normal case: valid encryption counter value -> generate new keys from the current key before discarding it
             NewKey_3(DUKPT_Instance, false);
-            break;
         } else {   
             // Invalid encryption counter value -> not using the current key for generating new keys
             // Erase the current key
@@ -165,11 +163,6 @@ void NewKey(DUKPT_Reg *DUKPT_Instance)
             NewKey_2(DUKPT_Instance);
             if (!DUKPT_Instance->operative) {
                 // DUKPT End of life
-                break;
-            }
-
-            // Not using invalid key to generate new keys
-            break;
         }
     }
 }
