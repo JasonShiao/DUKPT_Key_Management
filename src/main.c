@@ -4,7 +4,7 @@
 
 
 // TODO: Generate PIN Block from input PIN instead of hard-coded value for test
-uint64_t PIN_Block = 0x041274EDCBA9876F;
+uint64_t sample_PIN_Block = 0x041274EDCBA9876F;
 
 
 void loadInitialKey(DUKPT_Reg* DUKPT_Instance, uint64_t BDK[2], uint8_t KSN[10])
@@ -129,7 +129,7 @@ int Request_PIN_Entry(DUKPT_Reg* DUKPT_Instance, uint8_t PAN[12+1])
     
     // Encrypt the message (Format and encrypt PIN Block)
 #if ANSI_X_9_24_2009
-    DUKPT_Instance->CryptoReg[0] = PIN_Block;
+    DUKPT_Instance->CryptoReg[0] = sample_PIN_Block;
     DUKPT_Instance->KeyReg[0] = (*(DUKPT_Instance->CurrentKeyPtr)).LeftHalf;
 	DUKPT_Instance->KeyReg[1] = (*(DUKPT_Instance->CurrentKeyPtr)).RightHalf;
 

@@ -3,11 +3,12 @@
   * Practice DUKPT implementation  
   * Currently only ANSI X9.24-3-2009 is implemented
   * TODO: Support ANSI X9.24-3-2017 AES DUKPT
+  * Run from initial key loading until the end of life of dukpt (1048573 number of keys)
   
-  > NOTE: This project is created with Visual Studio IDE
+# CMake build
+cmake -S . -B build
+cmake --build build
 
-## DUKPT Originator
-  Generate DUKPT key and encrypt a text
+# Run
+./build/DUKPT
 
-## DUKPT Receiver
-  Use corresponding KSN to calculate the correct DUKPT key and decrypt the ciphertext
