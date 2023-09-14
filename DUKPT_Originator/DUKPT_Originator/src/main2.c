@@ -205,5 +205,7 @@ int main()
 
     printDUKPTStateSummary(DUKPT_Instance);
 
+    free(DUKPT_Instance);
+
     return 0;
 }
