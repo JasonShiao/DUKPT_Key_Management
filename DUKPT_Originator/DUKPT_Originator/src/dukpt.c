@@ -129,40 +129,45 @@ void NonReversibleKeyGen(DUKPT_Reg* DUKPT_Instance)
 */
 void NewKey(DUKPT_Reg *DUKPT_Instance)
 {
-        // Calculate the hamming weight of encryption counter -> if >= 10, invalid
-        int oneCount = 0; // Hamming weight
-        uint32_t EncryptCounter = 0x0;
-        EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[7] & 0x1F) << 16;
-        EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[8]) << 8;
-        EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[9]);
-        // Count hamming weight of the counter value
-        for (int i = 0; i < 21; i++) {
-            if (EncryptCounter & (uint32_t)0x1U << i) {
-                oneCount++;
-            }
+    // Calculate the hamming weight of encryption counter -> if >= 10, invalid
+    int oneCount = 0; // Hamming weight
+    uint32_t EncryptCounter = 0x0;
+    EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[7] & 0x1F) << 16;
+    EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[8]) << 8;
+    EncryptCounter |= (uint32_t)(DUKPT_Instance->KSNReg[9]);
+    // Count hamming weight of the counter value
+    for (int i = 0; i < 21; i++) {
+        if (EncryptCounter & (uint32_t)0x1U << i) {
+            oneCount++;
         }
+    }
 
-        if (oneCount < 10) {
-            // Normal case: valid encryption counter value -> generate new keys from the current key before discarding it
-            NewKey_3(DUKPT_Instance, false);
-        } else {   
-            // Invalid encryption counter value -> not using the current key for generating new keys
-            // Erase the current key
-            //DUKPT_Instance->CurrentKeyPtr->LeftHalf = 0x0;
-            //DUKPT_Instance->CurrentKeyPtr->RightHalf = 0x0;
-            DUKPT_Instance->CurrentKeyPtr->LRC = DUKPT_Instance->CurrentKeyPtr->LRC + 1;
+    if (oneCount < 10) {
+        // Normal case: valid encryption counter value -> generate new keys from the current key before discarding it
+        //printf("Generating keys from counter value: 0x%02x%02x%02x :\n", DUKPT_Instance->KSNReg[7] & 0x1F, DUKPT_Instance->KSNReg[8], DUKPT_Instance->KSNReg[9]);
+        NewKey_3(DUKPT_Instance, false);
+    } else {   
+        //printf("Ignore keys gen at counter value: 0x%02x%02x%02x :\n", DUKPT_Instance->KSNReg[7] & 0x1F, DUKPT_Instance->KSNReg[8], DUKPT_Instance->KSNReg[9]);
 
-            // Update counter by adding ShiftReg to ignore the invalid value and store it back to KSN register
-            // NOTE: This is a trick to jump instead of increment by 1 through all invalid counter values
-            EncryptCounter += (uint32_t)DUKPT_Instance->ShiftReg;
-            DUKPT_Instance->KSNReg[7] = (uint8_t)(EncryptCounter >> 16) & 0x1F;
-            DUKPT_Instance->KSNReg[8] = (uint8_t)(EncryptCounter >> 8);
-            DUKPT_Instance->KSNReg[9] = (uint8_t)(EncryptCounter);
+        // Invalid encryption counter value -> not using the current key for generating new keys
+        // Erase the current key
+        //DUKPT_Instance->CurrentKeyPtr->LeftHalf = 0x0;
+        //DUKPT_Instance->CurrentKeyPtr->RightHalf = 0x0;
+        DUKPT_Instance->CurrentKeyPtr->LRC = DUKPT_Instance->CurrentKeyPtr->LRC + 1;
 
-            // TODO: Handle the result of NewKey_2
-            NewKey_2(DUKPT_Instance);
-            if (!DUKPT_Instance->operative) {
-                // DUKPT End of life
+        // Update counter by adding ShiftReg to ignore the invalid value and store it back to KSN register
+        // NOTE: This is a trick to jump instead of increment by 1 (NewKey_4) through all invalid counter values
+        EncryptCounter += (uint32_t)DUKPT_Instance->ShiftReg;
+        DUKPT_Instance->KSNReg[7] &= (uint8_t)0xE0; // clear counter bits and preserve other bits
+	    DUKPT_Instance->KSNReg[7] |= (uint8_t)(EncryptCounter >> 16) & 0x1F;
+        DUKPT_Instance->KSNReg[8] = (uint8_t)(EncryptCounter >> 8);
+        DUKPT_Instance->KSNReg[9] = (uint8_t)(EncryptCounter);
+        //printf("Jump to counter value: 0x%02x%02x%02x :\n", DUKPT_Instance->KSNReg[7] & 0x1F, DUKPT_Instance->KSNReg[8], DUKPT_Instance->KSNReg[9]);
+
+        // TODO: Handle the result of NewKey_2
+        NewKey_2(DUKPT_Instance);
+        if (!DUKPT_Instance->operative) {
+            // DUKPT End of life
         }
     }
 }
@@ -170,7 +175,7 @@ void NewKey(DUKPT_Reg *DUKPT_Instance)
 /**
  * @brief Generate all (at lower bits) future keys from the current key
 */
-void NewKey_3(DUKPT_Reg *DUKPT_Instance)
+void NewKey_3(DUKPT_Reg *DUKPT_Instance, bool firstKey)
 {
     // Set the operative flag to true when loading the new initial key
     DUKPT_Instance->operative = true;
@@ -180,19 +185,19 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
         if (firstKey) {
             firstKey = false; // When loading initial key, skip the first right-shift
         } else {
-        // 0. Right shift the ShiftReg by 1 bit and check if it is 0, if yes, end of new key(s) generation
-	    DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
-        if (DUKPT_Instance->ShiftReg == (uint64_t)0x0)
-        {
-            NewKey_4(DUKPT_Instance);
-            NewKey_2(DUKPT_Instance);
-            if (!DUKPT_Instance->operative) {
-                // DUKPT End of life
+            // 0. Right shift the ShiftReg by 1 bit and check if it is 0, if yes, end of new key(s) generation
+            DUKPT_Instance->ShiftReg >>= 1; // e.g. new key generation order: FK(n) -> FK(n+1) ... -> FK21
+            if (DUKPT_Instance->ShiftReg == (uint64_t)0x0)
+            {
+                NewKey_4(DUKPT_Instance);
+                NewKey_2(DUKPT_Instance);
+                if (!DUKPT_Instance->operative) {
+                    // DUKPT End of life
+                    break;
+                }
+                // The end of NewKey_3
                 break;
             }
-            // The end of NewKey_3
-            break;
-        }
         }
 
         // 1. Right-justified ShiftReg "ORed" with the right-most 64 bits of KSNReg
@@ -203,6 +208,7 @@ void NewKey_3(DUKPT_Reg *DUKPT_Instance)
             KSN_right64 |= (uint64_t)DUKPT_Instance->KSNReg[i];
         }
         DUKPT_Instance->CryptoReg[0] = DUKPT_Instance->ShiftReg | KSN_right64;
+        //printf("  new key for counter value: %016llx\n", DUKPT_Instance->CryptoReg[0]);
 
         // 2. Copy the current key into KeyReg
         DUKPT_Instance->KeyReg[0] = DUKPT_Instance->CurrentKeyPtr->LeftHalf;
@@ -278,6 +284,13 @@ void NewKey_4(DUKPT_Reg *DUKPT_Instance)
 	DUKPT_Instance->KSNReg[7] |= (uint8_t)(tempEncryptCounter >> 16); // extract the bit-16 to bit-20 of the temp counter and assign to KSNReg[7]
 	DUKPT_Instance->KSNReg[8] = (uint8_t)(tempEncryptCounter >> 8);   // extract the bit-8 to bit-15 of the temp counter and assign to KSNReg[8]
 	DUKPT_Instance->KSNReg[9] = (uint8_t)tempEncryptCounter;          // extract the bit-0 to bit-7 of the temp counter and assign to KSNReg[9]
+
+    // For checking with ANSI X9.24 test sample result
+    //if (tempEncryptCounter >= 0 && tempEncryptCounter <= 0x15) {
+    //    printDUKPTStateSummary(DUKPT_Instance);
+    //} else if (tempEncryptCounter >= 0xFF800 && tempEncryptCounter <= 0x100000) {
+    //    printDUKPTStateSummary(DUKPT_Instance);
+    //}
 }
 
 /**

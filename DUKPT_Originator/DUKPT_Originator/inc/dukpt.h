@@ -37,7 +37,7 @@ void CalcIPEK(uint64_t BDK[2], uint8_t KSN[10], uint64_t IPEK[2]);
 void generateKey(uint64_t key[2], uint64_t baseKSN);
 void NonReversibleKeyGen(DUKPT_Reg* DUKPT_Instance);
 
-void NewKey_3(DUKPT_Reg* DUKPT_Instance);
+void NewKey_3(DUKPT_Reg* DUKPT_Instance, bool firstKey);
 void NewKey_1(DUKPT_Reg* DUKPT_Instance);
 void NewKey_4(DUKPT_Reg* DUKPT_Instance);
 int NewKey_2(DUKPT_Reg* DUKPT_Instance);
