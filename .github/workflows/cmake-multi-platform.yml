@@ -55,6 +55,8 @@ jobs:
             c_compiler: cl
           - os: macos-latest
             c_compiler: cl
+          - os: macos-latest
+            c_compiler: gcc
 
     steps:
     - uses: actions/checkout@v3
@@ -81,8 +83,12 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     - name: Run
-      # Run the proram
-      run: ${{ steps.strings.outputs.build-output-dir }}/DUKPT
+      # Run the program
+      run: |
+        if [ ${{ runner.os }} == 'Windows' ]; then
+          ${{ steps.strings.outputs.build-output-dir }}\${{ matrix.build_type }}\DUKPT.exe
+        else
+          ${{ steps.strings.outputs.build-output-dir }}/DUKPT
 
     #- name: Test
     #  working-directory: ${{ steps.strings.outputs.build-output-dir }}
