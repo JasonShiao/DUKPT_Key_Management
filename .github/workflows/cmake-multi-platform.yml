@@ -82,12 +82,15 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    - name: Run
+    - name: Run on Windows
       # Run the program
+      if: startsWith(matrix.os, 'Windows')
       run: |
-        if [ ${{ runner.os }} == 'Windows' ]; then
           ${{ steps.strings.outputs.build-output-dir }}\${{ matrix.build_type }}\DUKPT.exe
-        else
+    - name: Run on macOS and Linux
+      # Run the program
+      if: startsWith(matrix.os, 'macOS') || startsWith(matrix.os, 'ubuntu')
+      run: |
           ${{ steps.strings.outputs.build-output-dir }}/DUKPT
 
     #- name: Test
