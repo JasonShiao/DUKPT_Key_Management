@@ -1,3 +1,5 @@
+[![DUKPT Key Management test](https://github.com/JasonShiao/DUKPT_Key_Management/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/JasonShiao/DUKPT_Key_Management/actions/workflows/cmake-multi-platform.yml)
+
 # DUKPT Key Management
   * Practice DES and TDES implementation  
   * Practice DUKPT implementation  
